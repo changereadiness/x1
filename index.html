@@ -8,24 +8,28 @@
   <style>
     body {
       font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      background: #f7f7f7;
+      background: #f4f4f4;
       color: #111;
       margin: 0;
       padding: 0;
     }
 
     .container {
-      max-width: 720px;
+      max-width: 760px;
       margin: 40px auto;
       background: #fff;
-      padding: 32px;
-      border-radius: 8px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+      padding: 36px;
+      border-radius: 10px;
+      box-shadow: 0 12px 32px rgba(0,0,0,0.08);
     }
 
     h1 {
       font-size: 28px;
       margin-bottom: 8px;
+    }
+
+    h2 {
+      margin-top: 0;
     }
 
     p {
@@ -38,7 +42,7 @@
     }
 
     .question {
-      margin: 24px 0;
+      margin: 26px 0;
     }
 
     .question label {
@@ -86,13 +90,29 @@
       width: 100%;
       padding: 12px;
       font-size: 16px;
-      margin-top: 12px;
-      margin-bottom: 12px;
+      margin: 12px 0;
     }
 
     .divider {
-      margin: 32px 0;
+      margin: 36px 0;
       border-top: 1px solid #ddd;
+    }
+
+    .signal {
+      padding: 20px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      font-weight: 600;
+    }
+
+    .signal.high {
+      background: #fbeaea;
+      color: #8a1f1f;
+    }
+
+    .signal.low {
+      background: #eef6ee;
+      color: #1f6b2e;
     }
   </style>
 </head>
@@ -104,45 +124,49 @@
     <div id="intro">
       <h1>Change Readiness Checkpoint</h1>
       <p>
-        A fast, signal-based assessment to surface early risks before change initiatives fail.
+        A fast diagnostic to surface early signals that quietly derail change initiatives.
       </p>
       <p class="muted">⏱️ Takes ~1 minute</p>
       <button class="primary" onclick="startAssessment()">Start checkpoint</button>
     </div>
 
-    <!-- QUESTIONS -->
+    <!-- ASSESSMENT -->
     <div id="assessment" class="hidden">
-
       <div id="questions"></div>
 
-      <div class="actions" id="continueActions">
+      <div class="actions" id="depthActions">
         <button class="primary" onclick="showResults()">Get my results</button>
+        <button class="secondary" onclick="revealMore()">Answer a few more questions (~2 min)</button>
       </div>
-
-      <div class="actions hidden" id="deeperActions">
-        <button class="primary" onclick="showResults()">Get my results now</button>
-        <button class="secondary" onclick="revealMore()">Answer 5 more questions (~2 min)</button>
-      </div>
-
     </div>
 
     <!-- RESULTS -->
     <div id="results" class="hidden">
-      <h1>Your checkpoint results</h1>
+      <h1>Your checkpoint signal</h1>
+
+      <div id="signalBox" class="signal"></div>
+
       <p id="resultMessage"></p>
 
       <div class="divider"></div>
 
-      <h3>Want to go further?</h3>
+      <h2>Go one step further</h2>
       <p>
-        Leave your email and I’ll review your responses and follow up if there’s value in going deeper.
+        Leave your email and I’ll personally review your responses and follow up
+        if there’s value in going deeper.
       </p>
 
-      <input type="email" placeholder="Your email address" />
-      <button class="primary">Submit</button>
+      <form
+        action="https://formspree.io/f/REPLACE_ME"
+        method="POST"
+      >
+        <input type="email" name="email" required placeholder="Your email address" />
+        <input type="hidden" name="signal" id="signalField" />
+        <button class="primary" type="submit">Submit</button>
+      </form>
 
       <div class="actions">
-        <button class="secondary" onclick="resetAssessment()">Retake assessment</button>
+        <button class="secondary" onclick="resetAssessment()">Retake checkpoint</button>
       </div>
     </div>
 
@@ -150,29 +174,27 @@
 
 <script>
   const baseQuestions = [
-    "Is there a single accountable owner for this change?",
-    "Is the purpose of the change clearly articulated?",
-    "Are key stakeholders aligned on the objective?",
-    "Does leadership actively support the initiative?",
-    "Are roles and decision rights clear?"
+    "Is there a single formally accountable owner for this change?",
+    "Is the purpose of the initiative clearly articulated?",
+    "Are key stakeholders aligned on the intended outcome?",
+    "Is leadership visibly supporting the initiative?",
+    "Are roles and decision rights clearly defined?"
   ];
 
   const extraQuestions = [
-    "Are risks being openly discussed today?",
-    "Is there a clear success definition?",
-    "Do teams understand what will change for them?",
+    "Are execution risks openly discussed today?",
+    "Is success defined beyond delivery milestones?",
+    "Do impacted teams understand what will change for them?",
     "Are resources realistically allocated?",
-    "Is feedback actively incorporated?"
+    "Is feedback actively incorporated into decisions?"
   ];
 
-  let currentQuestions = [];
-  let answeredCount = 0;
+  let score = 0;
 
   function startAssessment() {
     document.getElementById("intro").classList.add("hidden");
     document.getElementById("assessment").classList.remove("hidden");
     loadQuestions(baseQuestions);
-    document.getElementById("deeperActions").classList.remove("hidden");
   }
 
   function loadQuestions(questions) {
@@ -182,33 +204,47 @@
       div.className = "question";
       div.innerHTML = `
         <label>${q}</label>
-        <select>
+        <select onchange="updateScore(this.value)">
           <option value="">Select…</option>
-          <option>Yes</option>
-          <option>Somewhat</option>
-          <option>No</option>
+          <option value="2">Yes</option>
+          <option value="1">Somewhat</option>
+          <option value="0">No</option>
         </select>
       `;
       container.appendChild(div);
     });
-    currentQuestions = currentQuestions.concat(questions);
+  }
+
+  function updateScore(value) {
+    if (value !== "") score += parseInt(value);
   }
 
   function revealMore() {
     loadQuestions(extraQuestions);
-    document.getElementById("deeperActions").classList.add("hidden");
+    document.getElementById("depthActions").classList.add("hidden");
   }
 
   function showResults() {
     document.getElementById("assessment").classList.add("hidden");
     document.getElementById("results").classList.remove("hidden");
 
-    // Placeholder logic
-    const message = Math.random() > 0.5
-      ? "Your responses suggest early risk signals that are worth examining more closely."
-      : "Your responses indicate a generally healthy starting position, with a few areas worth double-checking.";
+    const signalBox = document.getElementById("signalBox");
+    const message = document.getElementById("resultMessage");
+    const signalField = document.getElementById("signalField");
 
-    document.getElementById("resultMessage").innerText = message;
+    if (score < 12) {
+      signalBox.className = "signal high";
+      signalBox.innerText = "⚠️ Elevated risk signal detected";
+      message.innerText =
+        "Your responses surface conditions that commonly undermine execution if left unexamined. These signals are often invisible early — and costly later.";
+      signalField.value = "Elevated risk";
+    } else {
+      signalBox.className = "signal low";
+      signalBox.innerText = "✓ Generally stable starting position";
+      message.innerText =
+        "Your responses suggest a stable foundation, with a few areas that deserve a second look before scale and commitment increase.";
+      signalField.value = "Generally stable";
+    }
   }
 
   function resetAssessment() {
