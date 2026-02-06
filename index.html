@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <title>Change Readiness Checkpoint</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
   <style>
     body {
       font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
@@ -12,6 +13,7 @@
       margin: 0;
       padding: 40px;
     }
+
     .container {
       max-width: 720px;
       margin: auto;
@@ -20,31 +22,45 @@
       border-radius: 12px;
       box-shadow: 0 0 40px rgba(0,0,0,0.4);
     }
+
     h1 {
       margin-top: 0;
       font-size: 28px;
     }
+
+    h2 {
+      margin-top: 0;
+    }
+
     p {
       color: #94a3b8;
       line-height: 1.6;
     }
+
     .question {
       margin: 32px 0;
     }
+
     label {
       display: block;
       margin-bottom: 12px;
       font-weight: 600;
     }
+
     select, textarea, input {
       width: 100%;
       padding: 12px;
       border-radius: 8px;
-      border: none;
+      border: 1px solid #334155;
       background: #020617;
       color: #e5e7eb;
-      border: 1px solid #334155;
+      font-size: 14px;
     }
+
+    textarea {
+      resize: vertical;
+    }
+
     button {
       margin-top: 24px;
       padding: 14px 24px;
@@ -55,15 +71,29 @@
       font-weight: 700;
       cursor: pointer;
     }
+
+    button.secondary {
+      background: transparent;
+      color: #38bdf8;
+      border: 1px solid #38bdf8;
+      margin-left: 12px;
+    }
+
     .hidden {
       display: none;
     }
+
     .cta {
-      background: #020617;
       border: 1px solid #334155;
       padding: 24px;
       border-radius: 10px;
       margin-top: 32px;
+    }
+
+    .fine {
+      font-size: 13px;
+      color: #64748b;
+      margin-top: 12px;
     }
   </style>
 </head>
@@ -72,9 +102,17 @@
   <div class="container">
 
     <h1>Change Readiness Checkpoint</h1>
+
     <p>
-      This is a short diagnostic to surface **early signals of change risk**.
-      No scoring. No judgment. Just clarity.
+      This checkpoint surfaces early signals of change risk.<br />
+      It does not score you.<br />
+      It does not judge you.<br />
+      It highlights where assumptions may still be implicit.
+    </p>
+
+    <p>
+      Most initiatives fail not because of execution,
+      but because key conditions were never made explicit.
     </p>
 
     <form id="checkpointForm">
@@ -91,8 +129,8 @@
       </div>
 
       <div class="question">
-        <label>2. What problem or opportunity is this change meant to address?</label>
-        <textarea rows="3" placeholder="In one or two sentences"></textarea>
+        <label>2. What problem or opportunity is this initiative intended to address?</label>
+        <textarea rows="3" placeholder="One or two sentences is enough"></textarea>
       </div>
 
       <div class="question">
@@ -117,24 +155,29 @@
         </select>
       </div>
 
-      <button type="submit">View My Checkpoint Result</button>
+      <button type="submit">View my checkpoint insight</button>
     </form>
 
     <div id="result" class="hidden">
+
       <div class="cta">
-        <h2>What this tells us</h2>
-        <p>
-          Your answers suggest there is **non-trivial change risk** worth examining
-          before execution accelerates.
-        </p>
-        <p>
-          The next step is a **Change Readiness Briefing** — a short, structured
-          conversation to interpret these signals and decide how to proceed.
-        </p>
+        <h2>What this suggests</h2>
 
-        <p><strong>No cost. No commitment.</strong></p>
+        <p id="insightText"></p>
 
-        <button onclick="bookCall()">Book a 30-min Briefing</button>
+        <div class="question">
+          <label>
+            If you’d like a short written summary of these signals,
+            leave your email below.
+          </label>
+          <input type="email" placeholder="you@company.com" />
+          <p class="fine">
+            No mailing list. This is only used to continue the conversation.
+          </p>
+        </div>
+
+        <button onclick="requestBriefing()">Ask me to review this with you</button>
+        <button class="secondary" onclick="openCalendly()">Or book directly</button>
       </div>
     </div>
 
@@ -143,16 +186,55 @@
   <script>
     const form = document.getElementById("checkpointForm");
     const result = document.getElementById("result");
+    const insight = document.getElementById("insightText");
 
     form.addEventListener("submit", function (e) {
       e.preventDefault();
+
+      const selects = form.querySelectorAll("select");
+      let implicitSignals = 0;
+
+      selects.forEach(s => {
+        if (
+          s.value.includes("No single owner") ||
+          s.value.includes("Low confidence") ||
+          s.value.includes("Unclear")
+        ) {
+          implicitSignals++;
+        }
+      });
+
+      let message = `
+        Your responses suggest that some assumptions around ownership,
+        alignment, or impact may not yet be fully explicit.
+
+        This does not mean the initiative is flawed.
+        It means the conditions for success may not yet be shared.
+      `;
+
+      if (implicitSignals === 0) {
+        message = `
+          Your responses suggest a relatively strong baseline of clarity.
+
+          Remaining risk is less about execution
+          and more about how consistently this clarity is held
+          across leaders and teams.
+        `;
+      }
+
+      insight.innerText = message.trim();
+
       form.classList.add("hidden");
       result.classList.remove("hidden");
     });
 
-    function bookCall() {
-      // Replace with Calendly / email / link
-      window.location.href = "mailto:youremail@domain.com?subject=Change Readiness Briefing";
+    function requestBriefing() {
+      window.location.href =
+        "mailto:youremail@domain.com?subject=Change Readiness Briefing Request";
+    }
+
+    function openCalendly() {
+      window.location.href = "https://calendly.com/YOUR-LINK";
     }
   </script>
 </body>
