@@ -2,300 +2,245 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>CRB — Private Change Readiness Checkpoint</title>
+  <title>Change Readiness Briefing — Private Checkpoint</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
   <style>
     body {
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      background: #f4f4f4;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: #ffffff;
       color: #111;
       margin: 0;
       padding: 0;
     }
 
     .container {
-      max-width: 760px;
-      margin: 40px auto;
-      background: #fff;
-      padding: 40px;
-      border-radius: 10px;
-      box-shadow: 0 12px 32px rgba(0,0,0,0.08);
+      max-width: 720px;
+      margin: 80px auto;
+      padding: 0 24px;
     }
 
-    h1 {
-      font-size: 28px;
-      margin-bottom: 8px;
+    h1, h2 {
+      font-weight: 500;
+      letter-spacing: 0.2px;
     }
 
     p {
       line-height: 1.6;
-    }
-
-    .authority {
-      font-size: 13px;
-      color: #777;
-      letter-spacing: 0.5px;
-      margin-bottom: 24px;
-    }
-
-    .muted {
-      color: #555;
-      font-size: 14px;
-    }
-
-    .question {
-      margin: 48px 0;
-      opacity: 0.4;
-      transition: opacity 0.2s ease;
-    }
-
-    .question.active {
-      opacity: 1;
+      margin-bottom: 32px;
     }
 
     .statement {
-      font-weight: 500;
-      margin-bottom: 14px;
-    }
-
-    .options {
-      display: flex;
-      gap: 12px;
-      flex-wrap: wrap;
-    }
-
-    .option {
-      border: 1px solid #ccc;
-      padding: 14px 18px;
-      border-radius: 6px;
+      padding: 24px;
+      margin-bottom: 24px;
+      border: 1px solid #e5e5e5;
       cursor: pointer;
-      flex: 1;
-      min-width: 120px;
-      text-align: center;
     }
 
-    .option.selected {
+    .statement.active {
       border-color: #111;
-      background: #f0f0f0;
-    }
-
-    .actions {
-      margin-top: 48px;
-      display: flex;
-      gap: 12px;
-      flex-wrap: wrap;
+      background: #fafafa;
     }
 
     button {
-      padding: 12px 20px;
-      font-size: 16px;
-      border-radius: 6px;
-      border: none;
+      padding: 14px 20px;
+      font-size: 15px;
       cursor: pointer;
-    }
-
-    .primary {
+      border: 1px solid #111;
       background: #111;
       color: #fff;
     }
 
-    .secondary {
-      background: #e5e5e5;
+    button.secondary {
+      background: #fff;
       color: #111;
+      margin-left: 12px;
     }
 
-    .signal {
-      padding: 20px;
-      border-radius: 8px;
-      margin-bottom: 20px;
-      font-weight: 600;
-    }
-
-    .signal.high {
-      background: #fbeaea;
-      color: #8a1f1f;
-    }
-
-    .signal.low {
-      background: #eef6ee;
-      color: #1f6b2e;
-    }
-
-    .divider {
-      margin: 40px 0;
-      border-top: 1px solid #ddd;
+    .center {
+      text-align: center;
+      margin: 48px 0;
     }
 
     .hidden {
       display: none;
     }
+
+    .quiet {
+      font-size: 13px;
+      color: #666;
+      margin-top: 48px;
+    }
+
+    input[type="password"] {
+      padding: 14px;
+      width: 100%;
+      margin-bottom: 16px;
+      font-size: 15px;
+    }
+
+    a {
+      color: #111;
+      text-decoration: underline;
+    }
   </style>
 </head>
-<script>
-  const ACCESS_CODE = "mrld";
 
-  function checkAccess() {
-    const input = document.getElementById("accessInput").value;
-    if (input === ACCESS_CODE) {
-      document.getElementById("access-gate").style.display = "none";
-      document.getElementById("protected-content").style.display = "block";
-    } else {
-      alert("Invalid access code");
-    }
-  }
-</script><body>
-<div class="container">
+<body>
 
-  <div class="authority">CONFIDENTIAL · DIAGNOSTIC USE ONLY</div>
+<!-- ACCESS GATE -->
+<div id="access-gate" class="container">
+  <h2>Private Access</h2>
+  <p>This checkpoint is shared intentionally.</p>
 
-  <!-- INTRO -->
-  <div id="intro">
-    <h1>Change Readiness Checkpoint</h1>
-    <p>
-      A private diagnostic to surface early conditions that quietly undermine
-      change initiatives before momentum and credibility are committed.
-    </p>
-    <p class="muted">Takes ~1–3 minutes · No data stored</p>
-    <button class="primary" onclick="startAssessment()">Enter checkpoint</button>
+  <input type="password" id="accessInput" placeholder="One-time access code" />
+  <button type="button" onclick="checkAccess()">Continue</button>
+
+  <p id="access-error" class="quiet hidden">
+    This access code is invalid or already used.
+  </p>
+</div>
+
+<!-- PROTECTED CONTENT -->
+<div id="protected-content" class="container hidden">
+
+  <h1>Change Readiness Checkpoint</h1>
+
+  <p>
+    Select the statements that currently reflect your organization.
+    This checkpoint is diagnostic — not performative.
+  </p>
+
+  <div class="statement" onclick="toggle(this)">
+    The strategic intent of the change is clearly understood by leadership.
   </div>
 
-  <!-- ASSESSMENT -->
-  <div id="assessment" class="hidden">
-    <div id="questions"></div>
-
-    <div class="actions">
-      <button class="secondary" id="deeperBtn" onclick="revealMore()">
-        Proceed with deeper signal check (~2 min)
-      </button>
-      <button class="primary" onclick="showResults()">
-        Submit checkpoint
-      </button>
-    </div>
+  <div class="statement" onclick="toggle(this)">
+    Decision authority for this change is unambiguous.
   </div>
 
-  <!-- RESULTS -->
-  <div id="results" class="hidden">
-    <h1>Checkpoint signal</h1>
+  <div class="statement" onclick="toggle(this)">
+    The organization has successfully absorbed comparable change before.
+  </div>
 
-    <div id="signalBox" class="signal"></div>
-    <p id="resultMessage"></p>
+  <div class="statement" onclick="toggle(this)">
+    Key stakeholders are aligned on outcomes, not just milestones.
+  </div>
 
-    <div class="divider"></div>
+  <div class="statement" onclick="toggle(this)">
+    Resistance patterns are visible and acknowledged.
+  </div>
 
+  <div class="statement" onclick="toggle(this)">
+    Leaders are consistently modeling the change.
+  </div>
+
+  <div class="statement" onclick="toggle(this)">
+    Communication channels are trusted, not merely available.
+  </div>
+
+  <div class="statement" onclick="toggle(this)">
+    Capacity constraints have been realistically assessed.
+  </div>
+
+  <div class="statement" onclick="toggle(this)">
+    The cost of inaction is understood internally.
+  </div>
+
+  <div class="statement" onclick="toggle(this)">
+    There is ownership beyond the executive layer.
+  </div>
+
+  <!-- SUBMIT -->
+  <div class="center">
+    <button id="submitBtn" onclick="submitCheckpoint()">Submit checkpoint</button>
+  </div>
+
+  <!-- POST SUBMIT -->
+  <div id="post-submit" class="hidden">
     <p>
-      If this surfaced something worth examining, you’re welcome to connect
-      with me directly on LinkedIn.
+      This checkpoint has been submitted.
+      The signal has been captured.
     </p>
 
     <p>
+      If you want to discuss what this reveals,
+      you’re invited to connect with me on LinkedIn:
+      <br />
       <a href="https://linkedin.com/in/sayudi" target="_blank">
         linkedin.com/in/sayudi
       </a>
     </p>
 
-    <div class="actions">
+    <div class="center">
       <button class="secondary" onclick="restartCheckpoint()">
         Restart checkpoint
       </button>
     </div>
   </div>
 
+  <p class="quiet">
+    This is a private diagnostic checkpoint.  
+    Not a survey. Not a scorecard.
+  </p>
 </div>
 
+<!-- SCRIPT -->
 <script>
-  const baseStatements = [
-    "Leadership accountability for this change is clearly owned.",
-    "The purpose of the initiative is unambiguous.",
-    "Key stakeholders share a common view of the intended outcome.",
-    "Leadership support is visible and consistent.",
-    "Decision rights and roles are clearly defined."
+  /* ========= ACCESS CONTROL ========= */
+
+  const VALID_CODES = [
+    "MRLD-001",
+    "MRLD-002",
+    "MRLD-003"
   ];
 
-  const extraStatements = [
-    "Execution risks are openly discussed today.",
-    "Success is defined beyond delivery milestones.",
-    "Impacted teams understand what will change for them.",
-    "Resources are realistically allocated.",
-    "Feedback is actively incorporated into decisions."
-  ];
+  const USED_CODES_KEY = "crb_used_codes";
+  const ACCESS_GRANTED_KEY = "crb_access_granted";
 
-  let score = 0;
-  let deeperUsed = false;
-
-  function startAssessment() {
-    intro.classList.add("hidden");
-    assessment.classList.remove("hidden");
-    loadStatements(baseStatements);
+  if (localStorage.getItem(ACCESS_GRANTED_KEY) === "true") {
+    unlock();
   }
 
-  function loadStatements(statements) {
-    const container = document.getElementById("questions");
+  function checkAccess() {
+    const input = document.getElementById("accessInput").value.trim();
+    const used = JSON.parse(localStorage.getItem(USED_CODES_KEY) || "[]");
 
-    statements.forEach(statement => {
-      const q = document.createElement("div");
-      q.className = "question";
-
-      q.innerHTML = `
-        <div class="statement">${statement}</div>
-        <div class="options">
-          <div class="option" onclick="selectOption(this,2)">Strongly true</div>
-          <div class="option" onclick="selectOption(this,1)">Partially true</div>
-          <div class="option" onclick="selectOption(this,0)">Not true</div>
-        </div>
-      `;
-
-      container.appendChild(q);
-      updateActive();
-    });
-  }
-
-  function selectOption(el, value) {
-    const q = el.closest(".question");
-    q.querySelectorAll(".option").forEach(o => o.classList.remove("selected"));
-    el.classList.add("selected");
-    score += value;
-    updateActive();
-  }
-
-  function updateActive() {
-    const questions = document.querySelectorAll(".question");
-    questions.forEach(q => q.classList.remove("active"));
-    if (questions.length) {
-      questions[questions.length - 1].classList.add("active");
-    }
-  }
-
-  function revealMore() {
-    if (deeperUsed) return;
-    deeperUsed = true;
-    loadStatements(extraStatements);
-    document.getElementById("deeperBtn").disabled = true;
-    document.getElementById("deeperBtn").innerText = "Extended signal loaded";
-  }
-
-  function showResults() {
-    assessment.classList.add("hidden");
-    results.classList.remove("hidden");
-
-    const signalBox = document.getElementById("signalBox");
-    const message = document.getElementById("resultMessage");
-
-    if (score < 18) {
-      signalBox.className = "signal high";
-      signalBox.innerText = "⚠ Elevated execution risk detected";
-      message.innerText =
-        "The signal suggests conditions that frequently erode execution momentum if left unexamined. These risks tend to surface late, when correction is most expensive.";
+    if (VALID_CODES.includes(input) && !used.includes(input)) {
+      used.push(input);
+      localStorage.setItem(USED_CODES_KEY, JSON.stringify(used));
+      localStorage.setItem(ACCESS_GRANTED_KEY, "true");
+      unlock();
     } else {
-      signalBox.className = "signal low";
-      signalBox.innerText = "✓ Generally stable starting position";
-      message.innerText =
-        "The signal indicates a stable foundation, with a small number of areas worth examining before scale and irreversible commitments increase.";
+      document.getElementById("access-error").classList.remove("hidden");
     }
+  }
+
+  function unlock() {
+    document.getElementById("access-gate").classList.add("hidden");
+    document.getElementById("protected-content").classList.remove("hidden");
+  }
+
+  /* ========= CHECKPOINT LOGIC ========= */
+
+  function toggle(el) {
+    el.classList.toggle("active");
+  }
+
+  function submitCheckpoint() {
+    document.getElementById("submitBtn").disabled = true;
+    document.getElementById("post-submit").classList.remove("hidden");
+    document.getElementById("submitBtn").style.display = "none";
   }
 
   function restartCheckpoint() {
-    location.reload();
+    document.querySelectorAll(".statement").forEach(s => {
+      s.classList.remove("active");
+    });
+
+    document.getElementById("submitBtn").disabled = false;
+    document.getElementById("submitBtn").style.display = "inline-block";
+    document.getElementById("post-submit").classList.add("hidden");
   }
 </script>
 
