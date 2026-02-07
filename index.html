@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Change Readiness Briefing — Private Checkpoint</title>
+  <title>Change Readiness Checkpoint — Private</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
   <style>
@@ -32,9 +32,10 @@
 
     .statement {
       padding: 24px;
-      margin-bottom: 24px;
+      margin-bottom: 20px;
       border: 1px solid #e5e5e5;
       cursor: pointer;
+      transition: all 0.15s ease;
     }
 
     .statement.active {
@@ -43,7 +44,7 @@
     }
 
     button {
-      padding: 14px 20px;
+      padding: 14px 22px;
       font-size: 15px;
       cursor: pointer;
       border: 1px solid #111;
@@ -64,6 +65,28 @@
 
     .hidden {
       display: none;
+    }
+
+    .signal {
+      padding: 28px;
+      margin-top: 32px;
+      border-radius: 6px;
+      font-weight: 500;
+    }
+
+    .high {
+      background: #fbeaea;
+      color: #8a1f1f;
+    }
+
+    .moderate {
+      background: #fff4e5;
+      color: #8a5a1f;
+    }
+
+    .low {
+      background: #eef6ee;
+      color: #1f6b2e;
     }
 
     .quiet {
@@ -94,113 +117,66 @@
   <p>This checkpoint is shared intentionally.</p>
 
   <input type="password" id="accessInput" placeholder="One-time access code" />
-  <button type="button" onclick="checkAccess()">Continue</button>
+  <button onclick="checkAccess()">Continue</button>
 
   <p id="access-error" class="quiet hidden">
     This access code is invalid or already used.
   </p>
 </div>
 
-<!-- PROTECTED CONTENT -->
-<div id="protected-content" class="container hidden">
+<!-- CHECKPOINT -->
+<div id="checkpoint" class="container hidden">
 
   <h1>Change Readiness Checkpoint</h1>
 
   <p>
     Select the statements that currently reflect your organization.
-    This checkpoint is diagnostic — not performative.
+    This is diagnostic — not aspirational.
   </p>
 
-  <div class="statement" onclick="toggle(this)">
-    The strategic intent of the change is clearly understood by leadership.
-  </div>
-
-  <div class="statement" onclick="toggle(this)">
-    Decision authority for this change is unambiguous.
-  </div>
-
-  <div class="statement" onclick="toggle(this)">
-    The organization has successfully absorbed comparable change before.
-  </div>
-
-  <div class="statement" onclick="toggle(this)">
-    Key stakeholders are aligned on outcomes, not just milestones.
-  </div>
-
-  <div class="statement" onclick="toggle(this)">
-    Resistance patterns are visible and acknowledged.
-  </div>
-
-  <div class="statement" onclick="toggle(this)">
-    Leaders are consistently modeling the change.
-  </div>
-
-  <div class="statement" onclick="toggle(this)">
-    Communication channels are trusted, not merely available.
-  </div>
-
-  <div class="statement" onclick="toggle(this)">
-    Capacity constraints have been realistically assessed.
-  </div>
-
-  <div class="statement" onclick="toggle(this)">
-    The cost of inaction is understood internally.
-  </div>
-
-  <div class="statement" onclick="toggle(this)">
-    There is ownership beyond the executive layer.
-  </div>
+  <div class="statement" onclick="toggle(this)">The strategic intent of the change is clearly understood by leadership.</div>
+  <div class="statement" onclick="toggle(this)">Decision authority for this change is unambiguous.</div>
+  <div class="statement" onclick="toggle(this)">The organization has successfully absorbed comparable change before.</div>
+  <div class="statement" onclick="toggle(this)">Key stakeholders are aligned on outcomes, not just milestones.</div>
+  <div class="statement" onclick="toggle(this)">Resistance patterns are visible and acknowledged.</div>
+  <div class="statement" onclick="toggle(this)">Leaders are consistently modeling the change.</div>
+  <div class="statement" onclick="toggle(this)">Communication channels are trusted, not merely available.</div>
+  <div class="statement" onclick="toggle(this)">Capacity constraints have been realistically assessed.</div>
+  <div class="statement" onclick="toggle(this)">The cost of inaction is understood internally.</div>
+  <div class="statement" onclick="toggle(this)">There is ownership beyond the executive layer.</div>
 
   <!-- SUBMIT -->
   <div class="center">
-    <button id="submitBtn" onclick="submitCheckpoint()">Submit checkpoint</button>
+    <button id="submitBtn" onclick="evaluate()">Reveal checkpoint signal</button>
   </div>
 
-  <!-- POST SUBMIT -->
-  <div id="post-submit" class="hidden">
-    <p>
-      This checkpoint has been submitted.
-      The signal has been captured.
-    </p>
+  <!-- RESULTS -->
+  <div id="result" class="hidden">
+    <div id="signalBox" class="signal"></div>
 
     <p>
-      If you want to discuss what this reveals,
-      you’re invited to connect with me on LinkedIn:
+      If you want to pressure-test this signal or explore second-order variables,
+      you’re invited to connect with me directly on LinkedIn:
       <br />
-      <a href="https://linkedin.com/in/sayudi" target="_blank">
-        linkedin.com/in/sayudi
-      </a>
+      <a href="https://linkedin.com/in/sayudi" target="_blank">linkedin.com/in/sayudi</a>
     </p>
 
     <div class="center">
-      <button class="secondary" onclick="restartCheckpoint()">
-        Restart checkpoint
-      </button>
+      <button class="secondary" onclick="restart()">Restart checkpoint</button>
     </div>
   </div>
 
   <p class="quiet">
-    This is a private diagnostic checkpoint.  
+    Private diagnostic checkpoint.  
     Not a survey. Not a scorecard.
   </p>
 </div>
 
-<!-- SCRIPT -->
 <script>
-  /* ========= ACCESS CONTROL ========= */
+  /* ===== ACCESS CONTROL ===== */
 
-  const VALID_CODES = [
-    "MRLD001",
-    "MRLD002",
-    "MRLD003"
-  ];
-
+  const VALID_CODES = ["MRLD-001", "MRLD-002", "MRLD-003"];
   const USED_CODES_KEY = "crb_used_codes";
-  const ACCESS_GRANTED_KEY = "crb_access_granted";
-
-  if (localStorage.getItem(ACCESS_GRANTED_KEY) === "true") {
-    unlock();
-  }
 
   function checkAccess() {
     const input = document.getElementById("accessInput").value.trim();
@@ -209,38 +185,51 @@
     if (VALID_CODES.includes(input) && !used.includes(input)) {
       used.push(input);
       localStorage.setItem(USED_CODES_KEY, JSON.stringify(used));
-      localStorage.setItem(ACCESS_GRANTED_KEY, "true");
-      unlock();
+      document.getElementById("access-gate").classList.add("hidden");
+      document.getElementById("checkpoint").classList.remove("hidden");
     } else {
       document.getElementById("access-error").classList.remove("hidden");
     }
   }
 
-  function unlock() {
-    document.getElementById("access-gate").classList.add("hidden");
-    document.getElementById("protected-content").classList.remove("hidden");
-  }
-
-  /* ========= CHECKPOINT LOGIC ========= */
+  /* ===== CHECKPOINT LOGIC ===== */
 
   function toggle(el) {
     el.classList.toggle("active");
   }
 
-  function submitCheckpoint() {
-    document.getElementById("submitBtn").disabled = true;
-    document.getElementById("post-submit").classList.remove("hidden");
+  function evaluate() {
+    const count = document.querySelectorAll(".statement.active").length;
+    const box = document.getElementById("signalBox");
+
+    if (count <= 5) {
+      box.className = "signal high";
+      box.innerText =
+        "⚠️ High risk signal\n\n" +
+        "Several foundational conditions are missing. " +
+        "Proceeding at scale without intervention materially increases execution risk.";
+    } else if (count <= 9) {
+      box.className = "signal moderate";
+      box.innerText =
+        "◼︎ Moderate risk signal\n\n" +
+        "Core elements are present, but inconsistencies remain. " +
+        "This is where most change initiatives quietly derail.";
+    } else {
+      box.className = "signal low";
+      box.innerText =
+        "✓ Looking good — with caveats\n\n" +
+        "The foundation appears solid. " +
+        "At this stage, risk tends to hide in less common, second-order variables.";
+    }
+
     document.getElementById("submitBtn").style.display = "none";
+    document.getElementById("result").classList.remove("hidden");
   }
 
-  function restartCheckpoint() {
-    document.querySelectorAll(".statement").forEach(s => {
-      s.classList.remove("active");
-    });
-
-    document.getElementById("submitBtn").disabled = false;
+  function restart() {
+    document.querySelectorAll(".statement").forEach(s => s.classList.remove("active"));
+    document.getElementById("result").classList.add("hidden");
     document.getElementById("submitBtn").style.display = "inline-block";
-    document.getElementById("post-submit").classList.add("hidden");
   }
 </script>
 
