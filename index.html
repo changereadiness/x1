@@ -58,6 +58,11 @@
       margin-left: 12px;
     }
 
+    button:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
     .center {
       text-align: center;
       margin: 48px 0;
@@ -72,6 +77,7 @@
       margin-top: 32px;
       border-radius: 6px;
       font-weight: 500;
+      white-space: pre-line;
     }
 
     .high {
@@ -147,7 +153,9 @@
 
   <!-- SUBMIT -->
   <div class="center">
-    <button id="submitBtn" onclick="evaluate()">Reveal checkpoint signal</button>
+    <button id="submitBtn" onclick="evaluate()" disabled>
+      Reveal checkpoint signal
+    </button>
   </div>
 
   <!-- RESULTS -->
@@ -155,10 +163,12 @@
     <div id="signalBox" class="signal"></div>
 
     <p>
-      If you want to pressure-test this signal or explore second-order variables,
-      you’re invited to connect with me directly on LinkedIn:
+      To pressure-test this signal or explore second-order variables,
+      connect with me directly on LinkedIn:
       <br />
-      <a href="https://linkedin.com/in/sayudi" target="_blank">linkedin.com/in/sayudi</a>
+      <a href="https://linkedin.com/in/sayudi" target="_blank">
+        linkedin.com/in/sayudi
+      </a>
     </p>
 
     <div class="center">
@@ -196,6 +206,9 @@
 
   function toggle(el) {
     el.classList.toggle("active");
+
+    const selected = document.querySelectorAll(".statement.active").length;
+    document.getElementById("submitBtn").disabled = selected === 0;
   }
 
   function evaluate() {
@@ -224,12 +237,14 @@
 
     document.getElementById("submitBtn").style.display = "none";
     document.getElementById("result").classList.remove("hidden");
+    document.getElementById("result").scrollIntoView({ behavior: "smooth" });
   }
 
   function restart() {
     document.querySelectorAll(".statement").forEach(s => s.classList.remove("active"));
     document.getElementById("result").classList.add("hidden");
     document.getElementById("submitBtn").style.display = "inline-block";
+    document.getElementById("submitBtn").disabled = true;
   }
 </script>
 
